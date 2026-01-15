@@ -4,6 +4,7 @@ from pypdf import PdfReader
 import io
 import google.generativeai as genai
 from pydantic import BaseModel
+import json
 
 app = FastAPI()
 
@@ -52,10 +53,9 @@ async def extract_resume(file: UploadFile = File(...)):
 @app.post("/analyze")
 async def analyze_match(request: AnalyzeRequest):
     try:
-        # 1. Select the Model
+        print("--- Starting Analysis ---")
         model = genai.GenerativeModel('gemini-3-flash-preview')
 
-        # 2. Construct the Prompt (The Secret Sauce)
         prompt = f"""
         Act as a strict Senior Technical Recruiter. Compare this Resume to this Job Description.
         
@@ -65,23 +65,33 @@ async def analyze_match(request: AnalyzeRequest):
         JOB DESCRIPTION:
         {request.job_desc}
 
-        OUTPUT IN JSON FORMAT ONLY:
+        CRITICAL OUTPUT INSTRUCTIONS:
+        1. Output MUST be valid JSON only.
+        2. Do not include markdown formatting (no ```json or ```).
+        3. Follow this exact schema:
         {{
             "match_score": (integer 0-100),
-            "summary": (1 sentence summary of fit),
-            "missing_skills": [list of strings],
-            "good_match": [list of strings]
+            "summary": (string, 2 sentences max, professional tone),
+            "missing_skills": [array of strings, specific technical skills missing],
+            "good_match": [array of strings, skills present in both]
         }}
         """
 
-        # 3. Call Gemini
         response = model.generate_content(prompt)
+        raw_text = response.text
         
-        # 4. Return the raw text (we will parse JSON in React later)
-        return {"analysis": response.text}
+        # --- CLEANUP LOGIC ---
+        # Sometimes Gemini still adds markdown. Let's remove it safely.
+        clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+        
+        # Test if it is valid JSON
+        try:
+            json_data = json.loads(clean_text) # This checks if it's real JSON
+            return {"analysis": json_data}     # Return the OBJECT, not the string
+        except json.JSONDecodeError:
+            print("JSON Error: AI returned bad format")
+            return {"analysis": None, "error": "AI did not return valid JSON"}
 
     except Exception as e:
-        # This prints the REAL error to your terminal
-        print(f"####################\nAI ERROR: {str(e)}\n####################")
-        # This sends the error detail to the Frontend so you can see it in Inspect Element
+        print(f"AI ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"AI Error: {str(e)}")
