@@ -1,64 +1,79 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Bot, CheckCircle2, AlertCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Upload, FileText, Briefcase, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 function App() {
-  const [status, setStatus] = useState<string>("connecting");
-
-  useEffect(() => {
-    // Ping the FastAPI Backend
-    axios.get('http://127.0.0.1:8000/health')
-      .then(() => setStatus("connected"))
-      .catch(() => setStatus("error"));
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+    <div className="min-h-screen bg-[#050505] text-white font-sans selection:bg-blue-500/30">
       
-      {/* Animated Logo */}
-      <motion.div 
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="text-center space-y-6"
-      >
-        <div className="w-20 h-20 bg-white rounded-full mx-auto flex items-center justify-center shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-          <Bot size={40} className="text-black" />
-        </div>
-
-        <h1 className="text-4xl font-light tracking-tight">VERBA</h1>
-        <p className="text-zinc-500 uppercase tracking-widest text-xs">AI Career Analyst</p>
-      </motion.div>
-
-      {/* Connection Status Card */}
-      <motion.div 
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="mt-12 p-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md w-full max-w-sm"
-      >
-        <div className="flex items-center gap-4">
-          {status === 'connected' ? (
-            <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400">
-              <CheckCircle2 size={20} />
+      {/* HEADER */}
+      <header className="border-b border-white/5 bg-black/50 backdrop-blur-xl sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-lg">V</span>
             </div>
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400">
-              <AlertCircle size={20} />
-            </div>
-          )}
-          
-          <div>
-            <p className="text-sm font-medium text-white">System Status</p>
-            <p className="text-xs text-zinc-400">
-              {status === 'connected' 
-                ? "Backend Online & Ready" 
-                : "Cannot connect to FastAPI"}
-            </p>
+            <span className="font-medium tracking-tight">Verba</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs font-medium text-zinc-500">
+             <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"></div>
+             SYSTEM ONLINE
           </div>
         </div>
-      </motion.div>
+      </header>
+
+      {/* MAIN CONTENT GRID */}
+      <main className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        {/* LEFT COLUMN: RESUME UPLOAD */}
+        <section className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-light">1. Upload Resume</h2>
+            <p className="text-zinc-500 text-sm">PDF format recommended. Max 5MB.</p>
+          </div>
+
+          {/* Upload Box (Visual Only for now) */}
+          <div className="border-2 border-dashed border-white/10 rounded-2xl h-64 flex flex-col items-center justify-center gap-4 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group">
+            <div className="w-16 h-16 rounded-full bg-black/50 flex items-center justify-center group-hover:scale-110 transition-transform">
+              <Upload className="text-zinc-400 group-hover:text-white" size={24} />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-medium text-zinc-300">Click or Drag to Upload</p>
+              <p className="text-xs text-zinc-600 mt-1">PDF documents only</p>
+            </div>
+          </div>
+        </section>
+
+        {/* RIGHT COLUMN: JOB DESCRIPTION */}
+        <section className="space-y-6">
+          <div className="space-y-2">
+            <h2 className="text-2xl font-light">2. Add Job Description</h2>
+            <p className="text-zinc-500 text-sm">Paste the full job post here for analysis.</p>
+          </div>
+
+          <div className="relative h-64">
+            <textarea 
+              className="w-full h-full bg-[#0A0A0A] border border-white/10 rounded-2xl p-6 text-sm text-zinc-300 focus:outline-none focus:border-white/20 resize-none placeholder:text-zinc-700"
+              placeholder="Paste job description here..."
+            ></textarea>
+            <div className="absolute top-4 right-4 text-zinc-700">
+              <Briefcase size={16} />
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      {/* ACTION BAR (Bottom) */}
+      <div className="fixed bottom-0 left-0 w-full border-t border-white/10 bg-black/80 backdrop-blur-md p-6">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="text-zinc-500 text-sm">
+                Ready to analyze compatibility.
+            </div>
+            <button className="flex items-center gap-2 bg-white text-black px-8 py-3 rounded-xl font-bold hover:bg-zinc-200 transition-colors">
+                <span>Start Analysis</span>
+                <ArrowRight size={18} />
+            </button>
+        </div>
+      </div>
 
     </div>
   );
