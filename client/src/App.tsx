@@ -1,135 +1,76 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { motion, useMotionValue, useMotionTemplate } from 'framer-motion';
-import { Header } from './components/Header';
-import { Footer } from './components/Footer';
-import { HeroSection } from './components/HeroSection';
-import { FeaturesSection } from './components/FeaturesSection';
-import { InputSection } from './components/InputSection';
-import { AnalysisSection } from './components/AnalysisSection';
-import { AnalysisResult } from './types';
+import React from 'react';
+import { motion, AnimatePresence, useMotionValue, useMotionTemplate } from 'framer-motion';
+import { Cpu } from 'lucide-react';
+
+// Hooks & Data
+import { useAnalysis } from './hooks/useAnalysis';
+
+// Components
+import { Header } from './components/organisms/Header';
+import { Hero } from './components/organisms/Hero';
+import { Features } from './components/layout/Features';
+import { Showcase } from './components/layout/Showcase';
+import { InputEngine } from './components/organisms/InputEngine';
+import { AnalysisView } from './components/organisms/AnalysisView';
+import { Security } from './components/layout/Security';
+import { Footer } from './components/organisms/Footer';
 
 export default function App() {
-  const [file, setFile] = useState<File | null>(null);
-  const [resumeText, setResumeText] = useState("");
-  const [jobDesc, setJobDesc] = useState("");
-  const [analysisState, setAnalysisState] = useState<'idle' | 'analyzing' | 'complete'>('idle');
-  const [scanStage, setScanStage] = useState(0); 
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-
-  // Mouse Follower Logic
+  const { file, setFile, jobDesc, setJobDesc, analysisState, result, handleAnalyze, resetAnalysis } = useAnalysis();
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
+  const handleMouseMove = ({ currentTarget, clientX, clientY }) => {
     const { left, top } = currentTarget.getBoundingClientRect();
     mouseX.set(clientX - left);
     mouseY.set(clientY - top);
-  }
-
-  // 1. File Handler
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-      
-      const formData = new FormData();
-      formData.append("file", e.target.files[0]);
-      try {
-        const response = await axios.post("http://127.0.0.1:8000/extract-resume", formData);
-        setResumeText(response.data.full_text);
-      } catch (error) {
-        console.error("Extraction failed", error);
-      }
-    }
   };
 
-  // 2. Scroll to Input Section
-  const scrollToInput = () => {
-    const el = document.getElementById('input-engine');
-    el?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // 3. Analysis Logic
-  const handleAnalyze = async () => {
-    if (!resumeText || !jobDesc) return;
-    
-    setAnalysisState('analyzing');
-    setResult(null);
-    setScanStage(0);
-
-    setTimeout(() => setScanStage(1), 1500);
-    setTimeout(() => setScanStage(2), 3000);
-
-    try {
-      const response = await axios.post("http://127.0.0.1:8000/analyze", {
-        resume_text: resumeText,
-        job_desc: jobDesc
-      });
-      setResult(response.data.analysis);
-      setAnalysisState('complete');
-    } catch (error) {
-      console.error(error);
-      setAnalysisState('idle'); 
-    }
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <>
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Manrope:wght@300;400;500;600;700;800&display=swap');
-          body { font-family: 'Manrope', sans-serif; }
-          h1, h2, h3, .font-serif { font-family: 'DM Serif Display', serif; }
-          .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-          .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
-          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(209,176,102,0.3); border-radius: 4px; }
-        `}
-      </style>
+    <div className="min-h-screen bg-[#050b09] selection:bg-[#d1b066] overflow-x-hidden relative text-white" onMouseMove={handleMouseMove}>
+      <motion.div className="pointer-events-none fixed inset-0 z-0 opacity-20 hidden md:block"
+        style={{ background: useMotionTemplate`radial-gradient(1000px circle at ${mouseX}px ${mouseY}px, rgba(209, 176, 102, 0.15), transparent 80%)` }}
+      />
+
+      <Header onNavigate={scrollToSection} />
       
-      <div 
-        className="min-h-screen bg-[#050b09] text-white selection:bg-[#d1b066] selection:text-[#050b09] font-sans overflow-x-hidden relative"
-        onMouseMove={handleMouseMove}
-      >
-        <motion.div
-          className="pointer-events-none fixed inset-0 z-0 opacity-40 transition-opacity duration-300 group-hover:opacity-100"
-          style={{
-            background: useMotionTemplate`
-              radial-gradient(
-                800px circle at ${mouseX}px ${mouseY}px,
-                rgba(16, 185, 129, 0.1),
-                transparent 80%
-              )
-            `,
-          }}
-        />
+      <main>
+        <Hero onCtaClick={() => scrollToSection('input-engine')} />
+        <Features />
+        <Showcase />
+        
+        <section id="input-engine" className="py-20 md:py-32 px-6 md:px-12 bg-[#080e0c] relative z-20 border-t border-[#d1b066]/5 min-h-[600px]">
+          <div className="max-w-7xl mx-auto">
+            <AnimatePresence mode="wait">
+              {analysisState === 'idle' && (
+                <InputEngine file={file} jobDesc={jobDesc} 
+                  onFileChange={(e) => e.target.files && setFile(e.target.files[0])}
+                  onDescChange={(e) => setJobDesc(e.target.value)}
+                  onAnalyze={handleAnalyze} />
+              )}
 
-        <Header />
-        <HeroSection scrollToInput={scrollToInput} />
-        <FeaturesSection />
-        <InputSection 
-          file={file}
-          handleFileChange={handleFileChange}
-          jobDesc={jobDesc}
-          setJobDesc={setJobDesc}
-          handleAnalyze={handleAnalyze}
-          analysisState={analysisState}
-          resumeText={resumeText}
-        />
+              {analysisState === 'analyzing' && (
+                <div className="flex flex-col items-center justify-center py-20 space-y-12">
+                  <div className="w-24 h-24 border border-[#d1b066]/20 rounded-full flex items-center justify-center relative">
+                    <motion.div animate={{ rotate: 360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="absolute inset-0 border-t-2 border-[#d1b066] rounded-full" />
+                    <Cpu className="w-8 h-8 text-[#d1b066]" />
+                  </div>
+                  <h3 className="text-xl font-serif text-white tracking-widest uppercase">Processing Signal</h3>
+                </div>
+              )}
 
-        <AnalysisSection 
-          analysisState={analysisState}
-          scanStage={scanStage}
-          result={result}
-          resetAnalysis={() => { 
-            setAnalysisState('idle'); 
-            setFile(null); 
-            setJobDesc(""); 
-            setResumeText("");
-          }}
-        />
-
-        <Footer />
-      </div>
-    </>
+              {analysisState === 'complete' && <AnalysisView result={result} onReset={() => resetAnalysis(scrollToSection)} />}
+            </AnimatePresence>
+          </div>
+        </section>
+        <Security />
+      </main>
+      <Footer />
+    </div>
   );
 }
