@@ -1,6 +1,6 @@
 # KAIROS
 
-<img width="1328" height="818" alt="Kairos Strategy Engine" src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2600&auto=format&fit=crop" />
+<img width="1330" height="858" alt="image 1" src="https://github.com/user-attachments/assets/86fcae77-6d3f-45c6-ba45-a5ffd82c5728" />
 
 > **Strategic Career Intelligence.** > A high-fidelity AI orchestration engine that reverse-engineers the "Professional DNA" of every resume to align it with high-value semantic job vectors.
 
@@ -21,6 +21,11 @@ While traditional application tools are static, Kairos uses AI to:
 * Generate poetic **"Expert System Insights"** summarizing candidate alignment.
 * Identify **"Missing Essentials"** by calculating the semantic distance between experience and requirements.
 * Propose **"Tactical Refinements"** that re-architect weak descriptions into high-impact, quantified achievements.
+
+<img width="1326" height="837" alt="image 2" src="https://github.com/user-attachments/assets/d997f43e-6d0d-4bd5-95eb-6bd7a6fec854" />
+<img width="1327" height="856" alt="image 3" src="https://github.com/user-attachments/assets/3b8bc697-5284-47b1-a96d-ce43254d247c" />
+<img width="1321" height="852" alt="image 4" src="https://github.com/user-attachments/assets/8d05933d-24fd-4166-8e90-161e340d8960" />
+<img width="1329" height="849" alt="image 5" src="https://github.com/user-attachments/assets/b9840441-190d-498b-a32e-b26ab5927f23" />
 
 ---
 
@@ -125,3 +130,15 @@ cd client
 npm install
 npm run dev
 ```
+
+#### Check out the Live Demo at: https://youtu.be/HDKZR9AIxwo
+
+---
+
+## Author
+
+**Nisini Niketha** *Software Engineer & Digital Architect*
+
+* [GitHub](https://github.com/Nisinii)
+* [LinkedIn](https://www.linkedin.com/in/nisini-niketha/)
+* [Contact](mailto:wnisini.niketha@gmail.com)
