@@ -10,7 +10,7 @@ app = FastAPI()
 
 # --- CONFIGURATION ---
 # PASTE YOUR API KEY HERE
-GENAI_API_KEY = "AIzaSyDwUiuTZaUnHb52Vih8r61-ZC_F5wsK0hI"
+GENAI_API_KEY = "AIzaSyCTifz71Oc6qrikQpvhfXq-jBj_eXcEhTI"
 genai.configure(api_key=GENAI_API_KEY)
 
 # Allow React to talk to this Backend
@@ -57,8 +57,9 @@ async def analyze_match(request: AnalyzeRequest):
         model = genai.GenerativeModel('gemini-3-flash-preview')
 
         prompt = f"""
-        Act as a strict Senior Technical Recruiter. Compare this Resume to this Job Description.
-        
+        Act as a strict Senior Technical Recruiter and ATS Expert. 
+        Analyze this Resume against this Job Description.
+
         RESUME TEXT:
         {request.resume_text}
 
@@ -66,28 +67,40 @@ async def analyze_match(request: AnalyzeRequest):
         {request.job_desc}
 
         CRITICAL OUTPUT INSTRUCTIONS:
-        1. Output MUST be valid JSON only.
-        2. Do not include markdown formatting (no ```json or ```).
-        3. Follow this exact schema:
+        1. Output MUST be valid JSON only. No Markdown.
+        2. Analyze specifically for ATS (Applicant Tracking System) compatibility.
+        3. Follow this EXACT JSON schema:
         {{
             "match_score": (integer 0-100),
-            "summary": (string, 2 sentences max, professional tone),
-            "missing_skills": [array of strings, specific technical skills missing],
-            "good_match": [array of strings, skills present in both]
+            "summary": (string, 2 sentences professional summary),
+            "missing_skills": [array of strings, top 5 technical skills missing],
+            "ats_check": {{
+                "score": (integer 0-100, distinct from match score),
+                "issues": [array of strings, e.g. "Found passive voice", "Missing LinkedIn link", "Date formatting inconsistent"],
+                "summary": (string, feedback on structure/grammar)
+            }},
+            "suggested_rewrites": [
+                {{
+                    "section": (string, e.g. "Experience"),
+                    "current": (string, pick a weak sentence from resume),
+                    "improved": (string, rewrite it to include keywords and use action verbs)
+                }}
+            ],
+            "interview_prep": [
+                (string, 3 difficult technical questions based on the gaps found)
+            ]
         }}
         """
 
         response = model.generate_content(prompt)
         raw_text = response.text
         
-        # --- CLEANUP LOGIC ---
-        # Sometimes Gemini still adds markdown. Let's remove it safely.
+        # Cleanup Logic
         clean_text = raw_text.replace("```json", "").replace("```", "").strip()
         
-        # Test if it is valid JSON
         try:
-            json_data = json.loads(clean_text) # This checks if it's real JSON
-            return {"analysis": json_data}     # Return the OBJECT, not the string
+            json_data = json.loads(clean_text)
+            return {"analysis": json_data}
         except json.JSONDecodeError:
             print("JSON Error: AI returned bad format")
             return {"analysis": None, "error": "AI did not return valid JSON"}
