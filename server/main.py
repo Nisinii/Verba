@@ -10,7 +10,7 @@ app = FastAPI()
 
 # --- CONFIGURATION ---
 # PASTE YOUR API KEY HERE
-GENAI_API_KEY = "AIzaSyCTifz71Oc6qrikQpvhfXq-jBj_eXcEhTI"
+GENAI_API_KEY = "API_KEY"
 genai.configure(api_key=GENAI_API_KEY)
 
 # Allow React to talk to this Backend
