@@ -1,3 +1,17 @@
+/**
+ * Kairos Configuration & Static Assets
+ * * This file serves as the Single Source of Truth for the application's data layer.
+ * * Contains: 
+ * - Mock API responses for development.
+ * - Transformation samples for the Showcase UI.
+ * - Framer Motion variants for consistent global animations.
+ */
+
+/**
+ * Mock result schema mirroring the Gemini AI backend output.
+ * Used for fallback states and development testing.
+ * @type {Object}
+ */
 export const MOCK_RESPONSE = {
   matchScore: 89,
   missingKeywords: ["Kubernetes", "gRPC", "Microservices Patterns"],
@@ -9,6 +23,11 @@ export const MOCK_RESPONSE = {
   summary: "Exceptional candidate profile. Your mastery of the React/Python stack creates a strong narrative. The gap lies in orchestration tools—bridging this makes you a top 1% applicant."
 };
 
+/**
+ * Educational samples for the 'Showcase' component.
+ * Demonstrates the "before vs. after" semantic refinement of professional experience.
+ * @type {Array<{before: string, after: string, tag: string}>}
+ */
 export const OPTIMIZATION_SAMPLES = [
   {
     before: "Managed a team of developers and worked on the company website.",
@@ -22,13 +41,26 @@ export const OPTIMIZATION_SAMPLES = [
   }
 ];
 
+/**
+ * Framer Motion Animation Variants
+ * * Defines a unified motion language across the application.
+ * * 'fadeInUp': Standard entry animation for content blocks.
+ * * 'stagger': Parent orchestration to delay children animations sequentially.
+ */
 export const VARIANTS = {
   fadeInUp: {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6, ease: "easeOut" } 
+    }
   },
   stagger: {
     hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } }
+    visible: { 
+      opacity: 1, 
+      transition: { staggerChildren: 0.2 } 
+    }
   }
 };
